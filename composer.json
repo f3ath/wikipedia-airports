@@ -1,0 +1,21 @@
+{
+  "name": "f3ath/wikipedia-airports",
+  "description": "Parsed list of airports from Wikipedia",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexey Karapetov",
+      "email": "karapetov@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "WikipediaAirports\\": "src"
+    }
+  },
+  "require": {
+    "lootils/geo": "0.1.1",
+    "phpcurl/curlhttp": "1.0.0"
+  }
+}
