@@ -13,11 +13,31 @@ class Parser
      */
     private $xpath;
 
-    public function wikiAPList()
+    public function parseAirport(string $url): array
+    {
+        $this->open($url);
+        
+        return [
+            'url' => $url,
+            'name' => trim($this->getValue('//span[@class="fn org"]')),
+            'nick_name' => trim($this->getValue('//span[@class="nickname"]')),
+            'category' => trim($this->getValue('//td[@class="category"]')),
+            'serves' => trim($this->getValue('//tr[th="Serves"]/td')),
+            'location' => trim($this->getValue('//tr[th="Location"]/td')),
+            'lat' => trim($this->getValue('//tr[th="Coordinates"]/td//span[@class="latitude"]')),
+            'lon' => trim($this->getValue('//tr[th="Coordinates"]/td//span[@class="longitude"]')),
+        ];
+
+    }
+
+    /**
+     * Parses the list from @link https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code
+     * @return array
+     */
+    public function parseAirportList(): array
     {
         $data = [];
         for ($letter = 'A'; $letter <= 'Z'; $letter = chr(ord($letter) + 1)) {
-            $this->log("Parsing $letter");
             $this->open("https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_$letter");
             $rows = $this->xpath->query('//tr[not(@class)]');
             for ($i = 0; $i < $rows->length; $i++) {
@@ -46,6 +66,7 @@ class Parser
      */
     private function open(string $url)
     {
+        $this->log("Reading $url");
         $http = new HttpClient();
         $http->setOptions([
             CURLOPT_FOLLOWLOCATION => true,
@@ -69,6 +90,32 @@ class Parser
             $links[] = $anchors->item($i)->attributes->getNamedItem('href')->nodeValue;
         }
         return $links;
+    }
+
+    /**
+     * @param string  $query
+     * @param DOMNode $root
+     * @return string[]
+     */
+    private function  getValues(string $query, DOMNode $root = null): array
+    {
+        $values = [];
+        $nodes = $this->xpath->query($query, $root);
+        for ($i = 0; $i < $nodes->length; $i++) {
+            $values[] = $nodes->item($i)->nodeValue;
+        }
+        return $values;
+    }
+
+    /**
+     * @param string       $query
+     * @param DOMNode|null $node
+     * @return string|null
+     */
+    private function getValue(string $query, DOMNode $node = null)
+    {
+        $values = $this->getValues($query, $node);
+        return count($values) > 0 ? $values[0] : null;
     }
 
     /**
