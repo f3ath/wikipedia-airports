@@ -15,7 +15,6 @@
     }
   },
   "require": {
-    "lootils/geo": "0.1.1",
     "phpcurl/curlhttp": "1.0.0"
   }
 }
